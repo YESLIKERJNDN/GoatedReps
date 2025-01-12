@@ -111,7 +111,7 @@ const products = [
         id: 11,
         name: "Jordan 4 Off-White",
         brand: "Off White x Jordan",
-        price: 160.00,
+        price: 60.00,
         image: "https://i.ibb.co/XXBQT0D/OIP-8-removebg-preview.png",
         sizes: [7, 8, 9, 10, 11],
         reviews: []
